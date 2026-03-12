@@ -16,7 +16,7 @@ app = FastAPI()
 
 # enable CORS for frontend
 origins = [
-    "http://localhost:3000",
+    "https://avrc-frontend.onrender.com"    ,
 ]
 app.add_middleware(
     CORSMiddleware,
