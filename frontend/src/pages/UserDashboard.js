@@ -126,7 +126,7 @@ function UserDashboard({ onLogout }) {
     // Fetch user account information from backend
     const userId = localStorage.getItem('user_id');
     if (userId) {
-      fetch(`http://localhost:8000/auth/user/${userId}`, {
+      fetch(`https://avrc.onrender.com/auth/user/${userId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         }
@@ -164,7 +164,7 @@ function UserDashboard({ onLogout }) {
   const refreshReservations = async () => {
     try {
       const userId = localStorage.getItem('user_id');
-      const res = await fetch(`http://localhost:8000/reservations/?user_id=${userId}`, {
+      const res = await fetch(`https://avrc.onrender.com/reservations/?user_id=${userId}`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       });
       if (res.ok) {
@@ -198,7 +198,7 @@ function UserDashboard({ onLogout }) {
       }
       
       // Also refresh equipment list from backend to get real availability status
-      const equipRes = await fetch('http://localhost:8000/equipment/', {
+      const equipRes = await fetch('https://avrc.onrender.com/equipment/', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       });
       if (equipRes.ok) {
@@ -212,7 +212,7 @@ function UserDashboard({ onLogout }) {
 
   const fetchNotifications = async () => {
     try {
-      const res = await fetch('http://localhost:8000/notifications/', {
+      const res = await fetch('https://avrc.onrender.com/notifications/', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       });
       if (res.ok) {
@@ -227,7 +227,7 @@ function UserDashboard({ onLogout }) {
   useEffect(() => {
     const fetchEquipment = async () => {
       try {
-        const res = await fetch('http://localhost:8000/equipment/', {
+        const res = await fetch('https://avrc.onrender.com/equipment/', {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('access_token')}`
           }
@@ -242,7 +242,7 @@ function UserDashboard({ onLogout }) {
     };
     const fetchRooms = async () => {
       try {
-        const res = await fetch('http://localhost:8000/rooms/', {
+        const res = await fetch('https://avrc.onrender.com/rooms/', {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('access_token')}`
           }
@@ -425,7 +425,7 @@ function UserDashboard({ onLogout }) {
 
   const deleteNotification = async (notifId) => {
     try {
-      await fetch(`http://localhost:8000/notifications/${notifId}`, {
+      await fetch(`https://avrc.onrender.com/notifications/${notifId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       });
@@ -440,7 +440,7 @@ function UserDashboard({ onLogout }) {
   const deleteAllNotifications = async () => {
     try {
       for (const notif of notifications) {
-        await fetch(`http://localhost:8000/notifications/${notif.id}`, {
+        await fetch(`https://avrc.onrender.com/notifications/${notif.id}`, {
           method: 'DELETE',
           headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
         });
@@ -467,7 +467,7 @@ function UserDashboard({ onLogout }) {
 
   const handleSaveAccount = () => {
     const userId = localStorage.getItem('user_id');
-    fetch(`http://localhost:8000/auth/user/${userId}`, {
+    fetch(`https://avrc.onrender.com/auth/user/${userId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -555,7 +555,7 @@ function UserDashboard({ onLogout }) {
     try {
       const created = [];
       for (let p of payloads) {
-        const res = await fetch('http://localhost:8000/reservations/', {
+        const res = await fetch('https://avrc.onrender.com/reservations/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -632,7 +632,7 @@ function UserDashboard({ onLogout }) {
     setLoadingAvailability(true);
     try {
       const res = await fetch(
-        `http://localhost:8000/reservations/availability/${roomId}/${dateNeeded}`,
+        `https://avrc.onrender.com/reservations/availability/${roomId}/${dateNeeded}`,
         {
           method: 'GET',
           headers: {
@@ -754,7 +754,7 @@ function UserDashboard({ onLogout }) {
           time_to: timeTo,
           purpose: purpose
         };
-        const res = await fetch('http://localhost:8000/reservations/', {
+        const res = await fetch('https://avrc.onrender.com/reservations/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -925,7 +925,7 @@ function UserDashboard({ onLogout }) {
       };
 
       // persist edit to backend
-      fetch(`http://localhost:8000/reservations/${activeReservation.id}`, {
+      fetch(`https://avrc.onrender.com/reservations/${activeReservation.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -994,7 +994,7 @@ function UserDashboard({ onLogout }) {
       };
 
       // persist edit
-      fetch(`http://localhost:8000/reservations/${activeReservation.id}`, {
+      fetch(`https://avrc.onrender.com/reservations/${activeReservation.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -1028,7 +1028,7 @@ function UserDashboard({ onLogout }) {
     
     const performDelete = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/reservations/${activeReservation.id}`, {
+        const res = await fetch(`https://avrc.onrender.com/reservations/${activeReservation.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('access_token')}`

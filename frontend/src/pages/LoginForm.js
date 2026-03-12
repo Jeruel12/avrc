@@ -14,7 +14,7 @@ function LoginForm({ onClose, onRegister, onLoginSuccess }) {
     if(!idNumber.trim() || !password) { setError('ID and password are required'); return; }
     setLoading(true);
     try{
-      const res = await fetch('http://localhost:8000/auth/login', {
+      const res = await fetch('https://avrc.onrender.com/auth/login', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ id_number: idNumber, password })

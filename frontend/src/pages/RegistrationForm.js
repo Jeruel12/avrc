@@ -43,7 +43,7 @@
     setLoading(true);
     try {
       const body = { fullname, email, id_number: idNumber, department: departmentSelected, sub: subSelected, password };
-      const res = await fetch('http://localhost:8000/auth/register', {
+      const res = await fetch('https://avrc.onrender.com/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
