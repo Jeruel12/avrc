@@ -7,32 +7,21 @@
   font-weight: 600;
 }
 
-.homepage-nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 60px;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
-  font-family: 'Poppins', Arial, sans-serif;
-  font-weight: 600;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  gap: 40px;
+.homepage-nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:20px 40px;
+  background:rgba(255,255,255,0.7);
+  backdrop-filter:blur(10px);
+  box-shadow:0 2px 20px rgba(0,0,0,0.08);
+  position:sticky;
+  top:0;
+  z-index:100;
 }
 
-.homepage-logo {
-  font-weight: 600;
-  font-size: 2rem;
-  letter-spacing: 1px;
-  font-family: 'Poppins', Arial, sans-serif;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  position: absolute;
-  left: 20px;
+.homepage-logo img{
+  height:50px;
 }
 
 .homepage-logo img {
@@ -55,12 +44,9 @@
 
 .homepage-menu li {
   font-size: 0.95rem;
-  letter-spacing: 0.5px;
   color: #333;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Poppins', Arial, sans-serif;
-  font-weight: 600;
   position: relative;
   padding-bottom: 6px;
 }
@@ -85,27 +71,52 @@
   color: #1e7ac9;
 }
 
+.hamburger{
+  display:none;
+  flex-direction:column;
+  cursor:pointer;
+  gap:5px;
+}
+
+.hamburger span{
+  width:25px;
+  height:3px;
+  background:#333;
+  border-radius:2px;
+}
+
+.hamburger.active span:nth-child(1) {
+  transform: rotate(45deg) translate(8px, 8px);
+}
+
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -7px);
+}
+
 .homepage-auth {
   display: flex;
   gap: 18px;
-  align-items: center;
-  position: absolute;
-  right: 20px;
+  
 }
 
-.homepage-auth .login {
+.homepage-auth .login,
+.homepage-auth .register {
   color: #fff;
-  background: linear-gradient(135deg, #1e7ac9 0%, #3b5bdb 100%);
   font-weight: 600;
   cursor: pointer;
-  letter-spacing: 0.5px;
-  font-family: 'Poppins', Arial, sans-serif;
   padding: 10px 28px;
   border-radius: 2rem;
   border: none;
-  outline: none;
   font-size: 0.95rem;
   transition: all 0.3s ease;
+}
+
+.homepage-auth .login {
+  background: linear-gradient(135deg, #1e7ac9 0%, #3b5bdb 100%);
   box-shadow: 0 4px 15px rgba(30, 122, 201, 0.3);
   margin-right: 10px;
 }
@@ -117,18 +128,7 @@
 }
 
 .homepage-auth .register {
-  color: #fff;
   background: linear-gradient(135deg, #ff4d4d 0%, #ff6b6b 100%);
-  font-weight: 600;
-  cursor: pointer;
-  letter-spacing: 0.5px;
-  font-family: 'Poppins', Arial, sans-serif;
-  padding: 10px 28px;
-  border-radius: 2rem;
-  border: none;
-  outline: none;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
 }
 
@@ -138,14 +138,15 @@
   transform: translateY(-2px);
 }
 
-.homepage-hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: calc(100vh - 80px);
-  z-index: 2;
-  position: relative;
+.homepage-hero{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:60px 20px;
+  min-height:60vh;
+  z-index:2;
+  position:relative;
 }
 
 .homepage-hero h1 {
@@ -237,101 +238,32 @@
 
 /* ================= MOBILE RESPONSIVE ================= */
 
-@media (max-width: 768px) {
-
-  .homepage-nav{
-    padding:15px 20px;
-    flex-wrap:wrap;
-    gap:15px;
-  }
-
-  .homepage-logo{
-    position:static;
-  }
-
-  .homepage-auth{
-    position:static;
-    gap:10px;
-  }
-
-  .homepage-menu{
-    width:100%;
-    justify-content:center;
-    gap:20px;
-  }
-
-  .homepage-hero{
-    padding:40px 20px;
-    height:auto;
-    min-height:calc(100vh - 80px);
-  }
-
-  .homepage-hero h1{
-    font-size:2.2rem;
-  }
-
-  .homepage-hero p{
-    font-size:1rem;
-    max-width:90%;
-  }
-
-  .reserve-btn{
-    padding:14px 40px;
-    font-size:1rem;
-  }
-
-}
-
-
-@media (max-width: 480px){
-
-  .homepage-menu{
-    flex-direction:column;
-    gap:12px;
-  }
-
-  .homepage-hero h1{
-    font-size:1.8rem;
-  }
-
-  .homepage-hero p{
-    font-size:0.95rem;
-  }
-
-  .homepage-auth .login,
-  .homepage-auth .register{
-    padding:8px 18px;
-    font-size:0.85rem;
-  }
-
-  .reserve-btn{
-    width:100%;
-    max-width:250px;
-  }
-
-}
-
 @media (max-width:768px){
 
-  .homepage-nav{
-    flex-direction:column;
-    align-items:center;
-    gap:10px;
-    padding:15px 20px;
-  }
+.homepage-nav{
+  flex-wrap:wrap;
+}
 
-  .homepage-logo{
-    position:static;
-  }
+.hamburger{
+  display:flex;
+}
 
-  .homepage-auth{
-    position:static;
-  }
+.homepage-menu{
+  display:none;
+  flex-direction:column;
+  width:100%;
+  text-align:center;
+  margin-top:15px;
+}
 
-  .homepage-menu{
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:15px;
-  }
+.homepage-menu.open{
+  display:flex;
+}
+
+.homepage-auth{
+  width:100%;
+  justify-content:center;
+  margin-top:10px;
+}
 
 }
