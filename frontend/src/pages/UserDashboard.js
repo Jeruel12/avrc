@@ -24,6 +24,7 @@ function UserDashboard({ onLogout }) {
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [userName, setUserName] = useState('User');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -57,7 +58,6 @@ function UserDashboard({ onLogout }) {
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
   const [showViewModal, setShowViewModal] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDeleteNotifConfirm, setShowDeleteNotifConfirm] = useState(false);
@@ -79,6 +79,16 @@ function UserDashboard({ onLogout }) {
     preferredEquipment: null,
     preferredRoom: null,
     searchedItem: null
+  });
+  
+  // Store partial reservation information for follow-up questions
+  const [reservationContext, setReservationContext] = useState({
+    equipment: null,
+    room: null,
+    date: null,
+    time: null,
+    purpose: null,
+    isActive: false // Whether we're in the middle of collecting reservation info
   });
   const [editReservationData, setEditReservationData] = useState({
     dateNeeded: '',
@@ -126,7 +136,7 @@ function UserDashboard({ onLogout }) {
     // Fetch user account information from backend
     const userId = localStorage.getItem('user_id');
     if (userId) {
-      fetch(`https://avrc.onrender.com/auth/user/${userId}`, {
+      fetch(`http://localhost:8000/auth/user/${userId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         }
@@ -164,7 +174,7 @@ function UserDashboard({ onLogout }) {
   const refreshReservations = async () => {
     try {
       const userId = localStorage.getItem('user_id');
-      const res = await fetch(`https://avrc.onrender.com/reservations/?user_id=${userId}`, {
+      const res = await fetch(`http://localhost:8000/reservations/?user_id=${userId}`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       });
       if (res.ok) {
@@ -198,7 +208,7 @@ function UserDashboard({ onLogout }) {
       }
       
       // Also refresh equipment list from backend to get real availability status
-      const equipRes = await fetch('https://avrc.onrender.com/equipment/', {
+      const equipRes = await fetch('http://localhost:8000/equipment/', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       });
       if (equipRes.ok) {
@@ -212,22 +222,32 @@ function UserDashboard({ onLogout }) {
 
   const fetchNotifications = async () => {
     try {
-      const res = await fetch('https://avrc.onrender.com/notifications/', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+      const access_token = localStorage.getItem('access_token');
+      if (!access_token) {
+        console.warn('[Notifications] No access token found, skipping fetch');
+        setNotifications([]);
+        return;
+      }
+      const res = await fetch('http://localhost:8000/notifications/', {
+        headers: { 'Authorization': `Bearer ${access_token}` }
       });
       if (res.ok) {
         const data = await res.json();
         setNotifications(data);
+      } else if (res.status === 401) {
+        console.warn('[Notifications] Unauthorized - token may be expired');
+        setNotifications([]);
       }
     } catch (err) {
       console.error('Failed to fetch notifications:', err);
+      setNotifications([]);
     }
   };
 
   useEffect(() => {
     const fetchEquipment = async () => {
       try {
-        const res = await fetch('https://avrc.onrender.com/equipment/', {
+        const res = await fetch('http://localhost:8000/equipment/', {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('access_token')}`
           }
@@ -242,7 +262,7 @@ function UserDashboard({ onLogout }) {
     };
     const fetchRooms = async () => {
       try {
-        const res = await fetch('https://avrc.onrender.com/rooms/', {
+        const res = await fetch('http://localhost:8000/rooms/', {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('access_token')}`
           }
@@ -258,6 +278,8 @@ function UserDashboard({ onLogout }) {
 
     // perform all loads sequentially to ensure reservations can use latest lists
     (async () => {
+      const token = localStorage.getItem('access_token');
+      console.log('[DEBUG] Access token on mount:', token ? 'Present' : 'Missing');
       await fetchEquipment();
       await fetchRooms();
       await refreshReservations();
@@ -425,7 +447,7 @@ function UserDashboard({ onLogout }) {
 
   const deleteNotification = async (notifId) => {
     try {
-      await fetch(`https://avrc.onrender.com/notifications/${notifId}`, {
+      await fetch(`http://localhost:8000/notifications/${notifId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       });
@@ -440,7 +462,7 @@ function UserDashboard({ onLogout }) {
   const deleteAllNotifications = async () => {
     try {
       for (const notif of notifications) {
-        await fetch(`https://avrc.onrender.com/notifications/${notif.id}`, {
+        await fetch(`http://localhost:8000/notifications/${notif.id}`, {
           method: 'DELETE',
           headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
         });
@@ -467,7 +489,7 @@ function UserDashboard({ onLogout }) {
 
   const handleSaveAccount = () => {
     const userId = localStorage.getItem('user_id');
-    fetch(`https://avrc.onrender.com/auth/user/${userId}`, {
+    fetch(`http://localhost:8000/auth/user/${userId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -555,7 +577,7 @@ function UserDashboard({ onLogout }) {
     try {
       const created = [];
       for (let p of payloads) {
-        const res = await fetch('https://avrc.onrender.com/reservations/', {
+        const res = await fetch('http://localhost:8000/reservations/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -632,7 +654,7 @@ function UserDashboard({ onLogout }) {
     setLoadingAvailability(true);
     try {
       const res = await fetch(
-        `https://avrc.onrender.com/reservations/availability/${roomId}/${dateNeeded}`,
+        `http://localhost:8000/reservations/availability/${roomId}/${dateNeeded}`,
         {
           method: 'GET',
           headers: {
@@ -754,7 +776,7 @@ function UserDashboard({ onLogout }) {
           time_to: timeTo,
           purpose: purpose
         };
-        const res = await fetch('https://avrc.onrender.com/reservations/', {
+        const res = await fetch('http://localhost:8000/reservations/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -925,7 +947,7 @@ function UserDashboard({ onLogout }) {
       };
 
       // persist edit to backend
-      fetch(`https://avrc.onrender.com/reservations/${activeReservation.id}`, {
+      fetch(`http://localhost:8000/reservations/${activeReservation.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -994,7 +1016,7 @@ function UserDashboard({ onLogout }) {
       };
 
       // persist edit
-      fetch(`https://avrc.onrender.com/reservations/${activeReservation.id}`, {
+      fetch(`http://localhost:8000/reservations/${activeReservation.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -1028,7 +1050,7 @@ function UserDashboard({ onLogout }) {
     
     const performDelete = async () => {
       try {
-        const res = await fetch(`https://avrc.onrender.com/reservations/${activeReservation.id}`, {
+        const res = await fetch(`http://localhost:8000/reservations/${activeReservation.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('access_token')}`
@@ -1069,7 +1091,809 @@ function UserDashboard({ onLogout }) {
     setActiveReservation(null);
   };
 
-  const handleChatSend = () => {
+  // Process chat input to create reservations
+  // Helper function to format date nicely
+  const formatDate = (dateString) => {
+    const date = new Date(dateString + 'T00:00:00');
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+    return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+  };
+
+  // Helper function to format time nicely
+  const formatTime = (timeString) => {
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
+  };
+
+  // NOTE: `isWithinOfficeHours` helper is already defined earlier in this file
+
+  const processReservationFromChat = async (userMessage) => {
+    const input = userMessage.toLowerCase();
+    
+    // Merge with existing reservation context if we're collecting information
+    // Use context values if current detection didn't find them
+    let useContext = reservationContext.isActive;
+    
+    // Equipment detection - more flexible matching (supports multiple equipment)
+    const equipmentTypes = {
+      'speaker': 'SPEAKER',
+      'microphone': 'MICROPHONE',
+      'mic': 'MICROPHONE',
+      'hdmi': 'HDMI',
+      'cable': 'EXTENSION CORD',
+      'extension': 'EXTENSION CORD',
+      'extension cord': 'EXTENSION CORD',
+      'flag': 'FLAG',
+      'tv': 'TV',
+      'projector': 'PROJECTOR'
+    };
+    
+    // Detect multiple equipment items
+    let detectedEquipmentList = [];
+    let detectedEquipmentFromDBList = [];
+    
+    // Check for patterns like "1 speaker at 1 microphone" or "speaker and microphone"
+    const connectors = ['at', 'and', '&', 'at', 'saka', 'tsaka'];
+    const equipmentPatterns = [];
+    
+    // First, try to find equipment by keywords with quantity detection
+    // Structure: { type: 'MICROPHONE', quantity: 2 }
+    let equipmentWithQuantities = [];
+    
+    for (let [key, value] of Object.entries(equipmentTypes)) {
+      // Pattern 1: "2 microphones" or "2 microphone" (with quantity)
+      let regex = new RegExp(`(\\d+)\\s+${key}s?\\b`, 'i');
+      let match = input.match(regex);
+      let quantity = 1;
+      
+      if (match) {
+        // Extract quantity from pattern 1
+        quantity = parseInt(match[1]);
+      } else {
+        // Pattern 2: Just "microphone" or "microphones" (no quantity, default to 1)
+        regex = new RegExp(`\\b${key}s?\\b`, 'i');
+        match = input.match(regex);
+      }
+      
+      if (match) {
+        // Check if this equipment type is already detected
+        const existing = equipmentWithQuantities.find(e => e.type === value);
+        if (existing) {
+          // Use the higher quantity if mentioned multiple times
+          existing.quantity = Math.max(existing.quantity, quantity);
+        } else {
+          equipmentWithQuantities.push({ type: value, quantity: quantity });
+        }
+      }
+    }
+    
+    // Convert to simple list for backward compatibility
+    for (const eq of equipmentWithQuantities) {
+      if (!detectedEquipmentList.includes(eq.type)) {
+        detectedEquipmentList.push(eq.type);
+      }
+    }
+    
+    // If no equipment matched by keywords, try exact database search
+    if (detectedEquipmentList.length === 0 && equipmentList && equipmentList.length > 0) {
+      // Try to find equipment mentioned in message by checking against DB names
+      for (const equipment of equipmentList) {
+        const equipNameLower = equipment.name.toLowerCase();
+        const equipFirstWord = equipNameLower.split(' ')[0];
+        
+        // Check if equipment name or first word is in the input
+        if (input.includes(equipNameLower) || input.includes(equipFirstWord)) {
+          if (!detectedEquipmentFromDBList.find(e => e.id === equipment.id)) {
+            detectedEquipmentFromDBList.push(equipment);
+          }
+        }
+      }
+    }
+    
+    // For backward compatibility, keep single equipment detection
+    let detectedEquipment = detectedEquipmentList.length > 0 ? detectedEquipmentList[0] : null;
+    let detectedEquipmentFromDB = detectedEquipmentFromDBList.length > 0 ? detectedEquipmentFromDBList[0] : null;
+    
+    // Room detection (e.g., "room 213", "213", "213a")
+    const roomMatch = input.match(/(?:room\s+)?(\d{3}[a-z]?)/i);
+    let detectedRoom = null;
+    if (roomMatch) {
+      const roomNum = roomMatch[1];
+      detectedRoom = roomList.find(r => r.room_number.toLowerCase().includes(roomNum.toLowerCase()));
+    }
+    
+    // Time detection (e.g., "9am", "09:00", "2:30pm", "4pm", "4 pm")
+    let detectedTime = null;
+    
+    // Pattern 1: "4pm", "4 pm", "9am" (hour with am/pm, no minutes)
+    let timeMatch = input.match(/(\d{1,2})\s*(am|pm)\b/i);
+    if (timeMatch) {
+      let hour = parseInt(timeMatch[1]);
+      const ampm = timeMatch[2].toLowerCase();
+      if (ampm === 'pm' && hour !== 12) hour += 12;
+      if (ampm === 'am' && hour === 12) hour = 0;
+      detectedTime = `${String(hour).padStart(2, '0')}:00:00`;
+    } else {
+      // Pattern 2: "4:30pm", "09:30am", "14:30" (hour:minutes with optional am/pm)
+      timeMatch = input.match(/(\d{1,2}):(\d{2})\s*(am|pm)?\b/i);
+      if (timeMatch) {
+        let hour = parseInt(timeMatch[1]);
+        const min = timeMatch[2];
+        const ampm = timeMatch[3] ? timeMatch[3].toLowerCase() : null;
+        
+        if (ampm) {
+          if (ampm === 'pm' && hour !== 12) hour += 12;
+          if (ampm === 'am' && hour === 12) hour = 0;
+        } else {
+          // If no am/pm and hour > 12, assume 24-hour format
+          // If hour <= 12, could be ambiguous, but we'll assume it's as-is
+        }
+        
+        detectedTime = `${String(hour).padStart(2, '0')}:${min}:00`;
+      }
+    }
+    
+    // Date detection (e.g., "today", "tomorrow", "bukas", "march 16", "sa march 17", "3/16", "march 16, 2026")
+    let detectedDate = null;
+    
+    // Try to parse specific dates FIRST (before relative dates) to avoid conflicts
+    const monthNames = ['january', 'february', 'march', 'april', 'may', 'june',
+                       'july', 'august', 'september', 'october', 'november', 'december',
+                       'jan', 'feb', 'mar', 'apr', 'may', 'jun',
+                       'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+    
+    // Pattern: "march 16", "sa march 17", "march 16, 2026", "March 18", or "mar 16" 
+    // Find month name, then find the next number (day) that appears after it (allowing words in between)
+    const monthPattern = /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i;
+    const monthMatch = input.match(monthPattern);
+    
+    if (monthMatch) {
+      const monthName = monthMatch[1].toLowerCase();
+      const monthStartIndex = monthMatch.index + monthMatch[0].length;
+      
+      // Look for day number after the month
+      // Try to find the number that's most likely the day (closest to month, between 1-31)
+      const afterMonth = input.substring(monthStartIndex).trim();
+      
+      // Find all potential day numbers after the month
+      // We'll prioritize the one that's closest to the month and makes sense as a date
+      let dayMatch = null;
+      let bestMatch = null;
+      let bestMatchIndex = Infinity;
+      
+      // Pattern 1: Direct match "march 18" or "march 18, 2026" - most common and reliable
+      // Match number at start, optionally followed by comma+year, then space/time/end
+      // Handles: "18", "18 11am", "18 3pm", "18, 2026", "18 9:00am"
+      dayMatch = afterMonth.match(/^(\d{1,2})(?:\s*,\s*(\d{4}))?(?:\s+(?:am|pm|\d)|$|,)/i);
+      if (dayMatch) {
+        const day = parseInt(dayMatch[1]);
+        if (day >= 1 && day <= 31) {
+          bestMatch = dayMatch;
+          bestMatchIndex = 0;
+        }
+      }
+      
+      // Pattern 2: Number followed by time indicators (very reliable for "march 18 3pm" or "march 18 11am")
+      // This handles "18 3pm", "18 11am", or "18 9:00am" when Pattern 1 doesn't match
+      if (!bestMatch) {
+        // Match: number, space, then time (am/pm or hour:minute or just hour)
+        dayMatch = afterMonth.match(/^(\d{1,2})\s+(?:am|pm|\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);
+        if (dayMatch) {
+          const day = parseInt(dayMatch[1]);
+          if (day >= 1 && day <= 31 && dayMatch.index < bestMatchIndex) {
+            bestMatch = dayMatch;
+            bestMatchIndex = dayMatch.index;
+          }
+        }
+      }
+      
+      // Pattern 2b: More explicit for "march 18 3pm" - number followed by space and time
+      if (!bestMatch) {
+        dayMatch = afterMonth.match(/^(\d{1,2})\s+(\d{1,2})\s*(am|pm)\b/i);
+        if (dayMatch) {
+          const day = parseInt(dayMatch[1]);
+          if (day >= 1 && day <= 31 && dayMatch.index < bestMatchIndex) {
+            bestMatch = dayMatch;
+            bestMatchIndex = dayMatch.index;
+          }
+        }
+      }
+      
+      // Pattern 3: With optional single word like "sa march 18" or "march 18"
+      if (!bestMatch) {
+        dayMatch = afterMonth.match(/^(?:\w+\s+)?(\d{1,2})(?:\s+(?:am|pm|\d)|$|,)/i);
+        if (dayMatch) {
+          const day = parseInt(dayMatch[1]);
+          if (day >= 1 && day <= 31 && dayMatch.index < bestMatchIndex) {
+            bestMatch = dayMatch;
+            bestMatchIndex = dayMatch.index;
+          }
+        }
+      }
+      
+      // Pattern 4: More flexible - find first valid day number (1-31) after month
+      if (!bestMatch) {
+        // Find all numbers and pick the first one that's a valid day
+        const numberPattern = /\b(\d{1,2})\b/g;
+        let match;
+        while ((match = numberPattern.exec(afterMonth)) !== null) {
+          const day = parseInt(match[1]);
+          if (day >= 1 && day <= 31 && match.index < bestMatchIndex) {
+            // Check if it's followed by something that suggests it's a date (not equipment count)
+            const afterNum = afterMonth.substring(match.index + match[0].length).trim();
+            // If followed by time, comma, space+number (time), or end, it's likely a date
+            if (afterNum.match(/^(am|pm|:|\d{4}|,|\s+\d|$)/i) || match.index === 0) {
+              bestMatch = match;
+              bestMatchIndex = match.index;
+              break; // Take the first valid day number
+            }
+          }
+        }
+      }
+      
+      if (bestMatch) {
+        const day = parseInt(bestMatch[1]);
+        const year = bestMatch[2] ? parseInt(bestMatch[2]) : new Date().getFullYear();
+        
+        // Only accept if day is a valid day number (1-31)
+        if (day >= 1 && day <= 31) {
+          let monthIndex = monthNames.indexOf(monthName);
+          if (monthIndex >= 12) monthIndex -= 12; // Handle abbreviations
+          
+          if (monthIndex >= 0) {
+            // Create date string directly to avoid timezone issues with toISOString()
+            // Format: YYYY-MM-DD
+            const yearStr = String(year);
+            const monthStr = String(monthIndex + 1).padStart(2, '0');
+            const dayStr = String(day).padStart(2, '0');
+            detectedDate = `${yearStr}-${monthStr}-${dayStr}`;
+            
+            // Validate the date is valid (e.g., not Feb 30)
+            const date = new Date(year, monthIndex, day);
+            if (date.getMonth() !== monthIndex || date.getDate() !== day) {
+              // Invalid date (e.g., Feb 30), reset to null
+              detectedDate = null;
+            }
+          }
+        }
+      }
+    }
+    
+    // If no specific date found, check for relative dates
+    // IMPORTANT: Only use relative dates if NO month name was found in the input
+    // This prevents "tomorrow" from overriding explicit dates like "march 18"
+    if (!detectedDate) {
+      // Only check for relative dates if we didn't find any month name
+      const hasMonthName = /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(input);
+      
+      if (!hasMonthName) {
+        if (input.includes('today') || input.includes('ngayon')) {
+          const today = new Date();
+          const year = today.getFullYear();
+          const month = String(today.getMonth() + 1).padStart(2, '0');
+          const day = String(today.getDate()).padStart(2, '0');
+          detectedDate = `${year}-${month}-${day}`;
+        } else if (input.includes('tomorrow') || input.includes('bukas')) {
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          const year = tomorrow.getFullYear();
+          const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+          const day = String(tomorrow.getDate()).padStart(2, '0');
+          detectedDate = `${year}-${month}-${day}`;
+        }
+      }
+      
+      // Still check for slash format dates even if month name was found (in case user uses both)
+      if (!detectedDate) {
+        // Pattern: "3/16" or "03/16/2026" or "3-16"
+        const slashDateMatch = input.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/);
+        if (slashDateMatch) {
+          let month = parseInt(slashDateMatch[1]);
+          let day = parseInt(slashDateMatch[2]);
+          let year = slashDateMatch[3] ? parseInt(slashDateMatch[3]) : new Date().getFullYear();
+          
+          // Handle 2-digit years
+          if (year < 100) {
+            year += 2000;
+          }
+          
+          // Check if it's MM/DD or DD/MM format (assuming MM/DD for now)
+          if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+            const date = new Date(year, month - 1, day);
+            // Validate the date
+            if (date.getMonth() === month - 1 && date.getDate() === day) {
+              // Create date string directly to avoid timezone issues
+              const yearStr = String(year);
+              const monthStr = String(month).padStart(2, '0');
+              const dayStr = String(day).padStart(2, '0');
+              detectedDate = `${yearStr}-${monthStr}-${dayStr}`;
+            }
+          }
+        }
+      }
+    }
+    
+    // Purpose detection - extract purpose from phrases like "para sa", "for", etc.
+    let detectedPurpose = null;
+    
+    // Find the position of purpose-indicating phrases
+    const purposeIndicators = [
+      { phrase: /para\s+sa\s+/i, index: input.search(/para\s+sa\s+/i) },
+      { phrase: /for\s+/i, index: input.search(/for\s+/i) },
+      { phrase: /pang\s+/i, index: input.search(/pang\s+/i) },
+      { phrase: /para\s+/i, index: input.search(/para\s+/i) }
+    ].filter(p => p.index >= 0).sort((a, b) => a.index - b.index);
+    
+    if (purposeIndicators.length > 0) {
+      const indicator = purposeIndicators[0];
+      const startIndex = input.search(indicator.phrase) + input.match(indicator.phrase)[0].length;
+      
+      // Find where the purpose ends (before time/date keywords)
+      const endMarkers = [
+        /\s+(bukas|tomorrow|today|ngayon)\s+/i,
+        /\s+(\d{1,2})\s*(am|pm)\b/i,
+        /\s+(\d{1,2}):(\d{2})\s*(am|pm)?\b/i,
+        /\s+(march|april|may|june|july|august|september|october|november|december|january|february)\s+/i,
+        /\s+(\d{1,2})[\/\-](\d{1,2})/i
+      ];
+      
+      let endIndex = input.length;
+      for (const marker of endMarkers) {
+        const match = input.substring(startIndex).match(marker);
+        if (match) {
+          endIndex = startIndex + match.index;
+          break;
+        }
+      }
+      
+      let purpose = input.substring(startIndex, endIndex).trim();
+      
+      // Clean up: remove any remaining time/date words
+      purpose = purpose.replace(/\s+(bukas|tomorrow|today|ngayon|tom|am|pm|\d+).*$/i, '');
+      purpose = purpose.trim();
+      
+      if (purpose.length > 0 && purpose.length < 50) {
+        // Capitalize first letter of each word, but keep common Filipino words lowercase
+        const lowercaseWords = ['ng', 'sa', 'at', 'ang', 'mga', 'na', 'o', 'ni', 'nang', 'kung', 'para'];
+        detectedPurpose = purpose.split(' ').map((word, index) => {
+          const wordLower = word.toLowerCase();
+          // Keep common Filipino words lowercase (except if it's the first word)
+          if (index > 0 && lowercaseWords.includes(wordLower)) {
+            return wordLower;
+          }
+          // Capitalize first letter
+          return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        }).join(' ');
+      }
+    }
+    
+    // If no purpose found via phrases, check for common keywords
+    if (!detectedPurpose) {
+      const purposes = {
+        'training': 'Training',
+        'meeting': 'Meeting',
+        'presentation': 'Presentation',
+        'seminar': 'Seminar',
+        'workshop': 'Workshop',
+        'conference': 'Conference',
+        'event': 'Event',
+        'class': 'Class',
+        'session': 'Session',
+        'zumba': 'Zumba',
+        'exercise': 'Exercise',
+        'fitness': 'Fitness',
+        'dance': 'Dance',
+        'yoga': 'Yoga',
+        'party': 'Party',
+        'celebration': 'Celebration',
+        'birthday': 'Birthday',
+        'anniversary': 'Anniversary'
+      };
+      
+      for (let [key, value] of Object.entries(purposes)) {
+        if (input.includes(key)) {
+          detectedPurpose = value;
+          break;
+        }
+      }
+    }
+    
+    // Merge detected values with context (use context if detection failed)
+    // Always merge - use detected value if available, otherwise use context
+    if (!detectedEquipment && !detectedEquipmentFromDB && detectedEquipmentList.length === 0 && reservationContext.equipment) {
+      detectedEquipment = reservationContext.equipment;
+    }
+    if (!detectedRoom && reservationContext.room) {
+      detectedRoom = reservationContext.room;
+    }
+    if (!detectedDate && reservationContext.date) {
+      detectedDate = reservationContext.date;
+    }
+    if (!detectedTime && reservationContext.time) {
+      detectedTime = reservationContext.time;
+    }
+    if (!detectedPurpose && reservationContext.purpose) {
+      detectedPurpose = reservationContext.purpose;
+    }
+    
+    // Also merge equipment lists from context
+    if (detectedEquipmentList.length === 0 && reservationContext.equipmentList) {
+      detectedEquipmentList = reservationContext.equipmentList;
+    }
+    if (detectedEquipmentFromDBList.length === 0 && reservationContext.equipmentFromDBList) {
+      detectedEquipmentFromDBList = reservationContext.equipmentFromDBList;
+    }
+    if (equipmentWithQuantities.length === 0 && reservationContext.equipmentWithQuantities) {
+      equipmentWithQuantities = reservationContext.equipmentWithQuantities;
+    }
+    
+    // Check if equipment/room list is loaded
+    if ((detectedEquipment || detectedEquipmentFromDB) && (!equipmentList || equipmentList.length === 0)) {
+      return {
+        response: 'Please wait while I load the equipment list... Try again in a moment.',
+        suggestions: ['Retry', 'Cancel'],
+        created: false
+      };
+    }
+
+    if (detectedRoom && (!roomList || roomList.length === 0)) {
+      return {
+        response: 'Please wait while I load the room list... Try again in a moment.',
+        suggestions: ['Retry', 'Cancel'],
+        created: false
+      };
+    }
+    
+    // Determine what we have (after merging with context)
+    const hasEquipment = detectedEquipment || detectedEquipmentFromDB || detectedEquipmentList.length > 0 || detectedEquipmentFromDBList.length > 0;
+    const hasRoom = detectedRoom !== null;
+    const hasItem = hasEquipment || hasRoom;
+    
+    // Update context with newly detected values (merge with existing context)
+    // Store the actual equipment object/ID, not just the type
+    const updatedContext = {
+      equipment: (hasEquipment ? (detectedEquipment || detectedEquipmentFromDB || (detectedEquipmentList.length > 0 ? detectedEquipmentList[0] : null)) : null) || reservationContext.equipment,
+      equipmentList: detectedEquipmentList.length > 0 ? detectedEquipmentList : (reservationContext.equipmentList || []),
+      equipmentFromDBList: detectedEquipmentFromDBList.length > 0 ? detectedEquipmentFromDBList : (reservationContext.equipmentFromDBList || []),
+      equipmentWithQuantities: equipmentWithQuantities.length > 0 ? equipmentWithQuantities : (reservationContext.equipmentWithQuantities || []),
+      room: detectedRoom || reservationContext.room,
+      date: detectedDate || reservationContext.date,
+      time: detectedTime || reservationContext.time,
+      purpose: detectedPurpose || reservationContext.purpose,
+      isActive: true
+    };
+    
+    // Check if we have an item first
+    if (!hasItem) {
+      setReservationContext(updatedContext);
+      return {
+        response: 'I can help you make a reservation! What would you like to reserve?\n\n• Equipment (speaker, microphone, etc.)\n• Room (room number)',
+        suggestions: ['Speaker', 'Microphone', 'Room', 'Cancel'],
+        created: false
+      };
+    }
+    
+    // Ask for missing information one at a time, prioritizing
+    if (!detectedDate) {
+      setReservationContext(updatedContext);
+      const itemInfo = hasEquipment ? 'equipment' : (hasRoom ? `room ${detectedRoom?.room_number || ''}` : 'item');
+      return {
+        response: `What date would you like to reserve the ${itemInfo}?\n\nYou can say:\n• Today\n• Tomorrow\n• A specific date (e.g., March 18, March 20)`,
+        suggestions: ['Today', 'Tomorrow', 'March 18', 'March 20'],
+        created: false
+      };
+    }
+    
+    if (!detectedTime) {
+      setReservationContext(updatedContext);
+      const itemInfo = hasEquipment ? 'equipment' : (hasRoom ? `room ${detectedRoom?.room_number || ''}` : 'item');
+      const dateInfo = formatDate(detectedDate);
+      return {
+        response: `What time would you like the reservation on ${dateInfo}?\n\nYou can say:\n• 9am, 2pm, 3:30pm\n• Or any time format`,
+        suggestions: ['9:00 AM', '1:00 PM', '2:00 PM', '3:00 PM'],
+        created: false
+      };
+    }
+    
+    // If purpose is missing, ask for it (but make it optional with a default)
+    if (!detectedPurpose) {
+      // Check if user wants to skip purpose
+      if (input.includes('skip') || input.includes('cancel') || input.includes('wag na') || input.includes('ok lang')) {
+        detectedPurpose = 'As requested';
+      } else {
+        setReservationContext(updatedContext);
+        const itemInfo = hasEquipment ? 'equipment' : (hasRoom ? `room ${detectedRoom?.room_number || ''}` : 'item');
+        const dateInfo = formatDate(detectedDate);
+        const timeInfo = formatTime(detectedTime);
+        return {
+          response: `What's the purpose of this reservation?\n\n📋 Reservation Summary:\n   Item: ${itemInfo}\n   Date: ${dateInfo}\n   Time: ${timeInfo}\n\nYou can say:\n• Training, Meeting, Presentation\n• Or say "Skip" to use default`,
+          suggestions: ['Training', 'Meeting', 'Presentation', 'Skip'],
+          created: false
+        };
+      }
+    }
+    
+    // All information collected - before creating reservation, enforce office hours
+    // Validate date/time against AVRC office hours
+    if (!isWithinOfficeHours(detectedDate, detectedTime)) {
+      const dateInfo = formatDate(detectedDate);
+      const timeInfo = formatTime(detectedTime);
+
+      // Determine day of week for friendlier message
+      const [year, month, day] = detectedDate.split('-').map(Number);
+      const dt = new Date(year, month - 1, day);
+      const dayOfWeek = dt.getDay(); // 0 = Sunday
+
+      let explanation = '';
+      if (dayOfWeek === 0) {
+        explanation = 'AVRC is closed on Sundays.';
+      } else if (dayOfWeek === 6) {
+        explanation = 'Saturday office hours are from 8:00 AM to 12:00 PM only.';
+      } else {
+        explanation = 'Office hours are 7:30 AM–12:00 PM and 1:00 PM–5:00 PM (Monday–Friday).';
+      }
+
+      setReservationContext({
+        equipment: detectedEquipment || detectedEquipmentFromDB || (detectedEquipmentList.length > 0 ? detectedEquipmentList[0] : null),
+        room: detectedRoom,
+        date: detectedDate,
+        time: null,
+        purpose: detectedPurpose,
+        isActive: true
+      });
+
+      return {
+        response: `I can't create this reservation because it's outside AVRC office hours.\n\n📋 Requested:\n   Date: ${dateInfo}\n   Time: ${timeInfo}\n\n${explanation}\n\nPlease enter a new time within office hours for that date.`,
+        suggestions: ['9:00 AM', '10:00 AM', '2:00 PM', '3:00 PM'],
+        created: false
+      };
+    }
+
+    // All information valid - clear context and proceed to create reservation
+    setReservationContext({ equipment: null, room: null, date: null, time: null, purpose: null, isActive: false });
+
+    // AUTO-CREATE THE RESERVATION
+    try {
+      if (detectedEquipment || detectedEquipmentFromDB || detectedEquipmentList.length > 0 || detectedEquipmentFromDBList.length > 0) {
+        // Handle multiple equipment reservations
+        const equipmentToReserve = [];
+        
+        // Collect all equipment to reserve with quantities
+        if (detectedEquipmentList.length > 0) {
+          // Find available equipment for each detected type with quantity
+          for (const equipType of detectedEquipmentList) {
+            // Get the quantity for this equipment type
+            const equipWithQty = equipmentWithQuantities.find(e => e.type === equipType);
+            const quantity = equipWithQty ? equipWithQty.quantity : 1;
+            
+            // Find ALL available equipment of this type (not just the first one)
+            let availableItems = equipmentList.filter(e => 
+              getEquipCategory(e.name) === equipType && 
+              (e.available === true || e.status?.toLowerCase() === 'available')
+            );
+            
+            // If not found by exact category match, try partial name match
+            if (availableItems.length === 0) {
+              availableItems = equipmentList.filter(e => 
+                (e.available === true || e.status?.toLowerCase() === 'available') &&
+                (e.name.toUpperCase().includes(equipType.toUpperCase()) ||
+                getEquipCategory(e.name).toUpperCase().includes(equipType.toUpperCase()))
+              );
+            }
+            
+            // Take only the requested quantity (or all available if less than requested)
+            const itemsToAdd = availableItems.slice(0, quantity);
+            
+            // Add items that aren't already in the list
+            for (const item of itemsToAdd) {
+              if (!equipmentToReserve.find(e => e.id === item.id)) {
+                equipmentToReserve.push(item);
+              }
+            }
+          }
+        }
+        
+        // Add equipment from DB matches
+        if (detectedEquipmentFromDBList.length > 0) {
+          for (const equip of detectedEquipmentFromDBList) {
+            if ((equip.available === true || equip.status?.toLowerCase() === 'available') &&
+                !equipmentToReserve.find(e => e.id === equip.id)) {
+              equipmentToReserve.push(equip);
+            }
+          }
+        }
+        
+        // Fallback to single equipment detection (for backward compatibility)
+        if (equipmentToReserve.length === 0) {
+          let equipment = equipmentList.find(e => 
+            getEquipCategory(e.name) === detectedEquipment && 
+            (e.available === true || e.status?.toLowerCase() === 'available')
+          );
+          
+          if (!equipment && detectedEquipmentFromDB) {
+            if (detectedEquipmentFromDB.available === true || detectedEquipmentFromDB.status?.toLowerCase() === 'available') {
+              equipment = detectedEquipmentFromDB;
+            }
+          }
+          
+          if (!equipment) {
+            equipment = equipmentList.find(e => 
+              (e.available === true || e.status?.toLowerCase() === 'available') &&
+              (e.name.toUpperCase().includes(detectedEquipment?.toUpperCase()) ||
+              getEquipCategory(e.name).toUpperCase().includes(detectedEquipment?.toUpperCase()))
+            );
+          }
+          
+          if (equipment) {
+            equipmentToReserve.push(equipment);
+          }
+        }
+        
+        // If no equipment found, show available alternatives
+        if (equipmentToReserve.length === 0) {
+          const availableEquipment = equipmentList.filter(e => e.available === true || e.status?.toLowerCase() === 'available');
+          
+          if (availableEquipment.length === 0) {
+            return {
+              response: `Sorry, there's no equipment available at the moment. All items are currently reserved.`,
+              suggestions: ['Check Later', 'Other Equipment', 'Help'],
+              created: false
+            };
+          }
+          
+          return {
+            response: `I'm having trouble finding the requested equipment. Here's what's available:\n${availableEquipment.slice(0, 5).map(e => `• ${e.name}`).join('\n')}\n\nWould you like to reserve one of these instead?`,
+            suggestions: availableEquipment.slice(0, 4).map(e => e.name),
+            created: false
+          };
+        }
+
+        // Create reservations for all equipment
+        const createdReservations = [];
+        const failedReservations = [];
+        
+        for (const equipment of equipmentToReserve) {
+          const reservationData = {
+            item_type: 'equipment',
+            item_id: equipment.id,
+            date_needed: detectedDate,
+            time_from: detectedTime,
+            time_to: detectedTime,
+            purpose: detectedPurpose
+          };
+
+          console.log('[CHAT] Creating equipment reservation:', reservationData, 'Equipment:', equipment);
+
+          try {
+            const response = await fetch('http://localhost:8000/reservations/', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+              },
+              body: JSON.stringify(reservationData)
+            });
+
+            if (response.ok) {
+              const reservation = await response.json();
+              console.log('[CHAT] Reservation created:', reservation);
+              createdReservations.push(equipment.name);
+            } else {
+              const error = await response.json();
+              console.error('[CHAT] Reservation error:', error);
+              failedReservations.push({ name: equipment.name, error: error.detail || 'Unknown error' });
+            }
+          } catch (err) {
+            console.error('[CHAT] Reservation exception:', err);
+            failedReservations.push({ name: equipment.name, error: 'Network error' });
+          }
+        }
+        
+        // Refresh data to show updated availability
+        await refreshReservations();
+        
+        // Also refresh equipment list to update availability status
+        try {
+          const equipRes = await fetch('http://localhost:8000/equipment/', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+          });
+          if (equipRes.ok) {
+            const equipData = await equipRes.json();
+            setEquipmentList(equipData);
+          }
+        } catch (err) {
+          console.error('[CHAT] Failed to refresh equipment list:', err);
+        }
+        
+        // Format response based on results
+        const formattedDate = formatDate(detectedDate);
+        const formattedTime = formatTime(detectedTime);
+        
+        if (createdReservations.length > 0) {
+          let responseText = '';
+          
+          if (createdReservations.length === 1) {
+            responseText = `✓ Perfect! I've successfully reserved the ${createdReservations[0]} for you.\n\n📋 Reservation Details:\n   🗓️  Date: ${formattedDate}\n   ⏰  Time: ${formattedTime}\n   📌  Purpose: ${detectedPurpose}\n\n✅ Status: Pending approval\n\n💡 Check your MY RESERVATION tab to see it!`;
+          } else {
+            responseText = `✓ Perfect! I've successfully reserved ${createdReservations.length} items for you:\n\n${createdReservations.map((name, idx) => `   ${idx + 1}. ${name}`).join('\n')}\n\n📋 Reservation Details:\n   🗓️  Date: ${formattedDate}\n   ⏰  Time: ${formattedTime}\n   📌  Purpose: ${detectedPurpose}\n\n✅ Status: Pending approval\n\n💡 Check your MY RESERVATION tab to see them!`;
+          }
+          
+          if (failedReservations.length > 0) {
+            responseText += `\n\n⚠️ Note: Some reservations failed:\n${failedReservations.map(f => `   • ${f.name}: ${f.error}`).join('\n')}`;
+          }
+          
+          return {
+            response: responseText,
+            suggestions: ['New Reservation', 'View Reservations', 'Home'],
+            created: createdReservations.length > 0
+          };
+        } else {
+          return {
+            response: `Sorry, I couldn't complete the reservations. ${failedReservations.map(f => `${f.name}: ${f.error}`).join(', ')}`,
+            suggestions: ['Retry', 'Try Manual Form', 'Help'],
+            created: false
+          };
+        }
+      } else if (detectedRoom) {
+        const reservationData = {
+          room_id: detectedRoom.id,
+          date_needed: detectedDate,
+          time_from: detectedTime,
+          time_to: detectedTime, // User can adjust this later
+          purpose: detectedPurpose
+        };
+
+        console.log('[CHAT] Creating room reservation:', reservationData);
+
+        const response = await fetch('http://localhost:8000/room-reservations/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+          },
+          body: JSON.stringify(reservationData)
+        });
+
+        if (response.ok) {
+          const reservation = await response.json();
+          console.log('[CHAT] Room reservation created:', reservation);
+          
+          // Refresh data to show updated availability
+          await refreshReservations();
+          
+          const formattedDate = formatDate(detectedDate);
+          const formattedTime = formatTime(detectedTime);
+          
+          return {
+            response: `✓ Excellent! I've successfully reserved ${detectedRoom.room_number} for you.\n\n📋 Reservation Details:\n   🗓️  Date: ${formattedDate}\n   ⏰  Time: ${formattedTime}\n   📌  Purpose: ${detectedPurpose}\n\n✅ Status: Pending approval\n\n💡 Check your MY RESERVATION tab!`,
+            suggestions: ['New Reservation', 'View Reservations', 'Home'],
+            created: true
+          };
+        } else {
+          const error = await response.json();
+          console.error('[CHAT] Room reservation error:', error);
+          return {
+            response: `Sorry, the room reservation couldn't be completed. ${error.detail || 'Please try again.'}`,
+            suggestions: ['Retry', 'Try Manual Form', 'Help'],
+            created: false
+          };
+        }
+      }
+    } catch (error) {
+      console.error('[CHAT] Unexpected error:', error);
+      return {
+        response: 'Oops! Something went wrong. Please try the reservation form instead.',
+        suggestions: ['Try Again', 'Manual Form', 'Help'],
+        created: false
+      };
+    }
+  };
+
+  const handleChatSend = async () => {
     if (!chatInput.trim()) return;
 
     // Add user message
@@ -1082,76 +1906,80 @@ function UserDashboard({ onLogout }) {
     
     const updatedMessages = [...chatMessages, userMessage];
     setChatMessages(updatedMessages);
+    const currentInput = chatInput;
+    setChatInput('');
     
-    // Enhanced NLP with context awareness and item detection
+    const input = currentInput.toLowerCase();
     let botResponse = '';
     let suggestions = [];
-    const input = chatInput.toLowerCase();
     
-    // Detect equipment items mentioned
-    const equipmentItems = ['speaker', 'microphone', 'mic', 'hdmi', 'cable', 'extension', 'flag', 'tv'];
-    let detectedItem = null;
-    for (let item of equipmentItems) {
-      if (input.includes(item)) {
-        detectedItem = item;
-        break;
-      }
-    }
+    // Check if user is trying to make a reservation
+    const reservationKeywords = ['reserve', 'book', 'need', 'require', 'want', 'could', 'can i', 'pwede', 'magpa'];
+    const isReservationAttempt = reservationKeywords.some(keyword => input.includes(keyword));
     
-    if (input.includes('available') || input.includes('may available')) {
-      if (detectedItem) {
-        botResponse = `Let me show you the available ${detectedItem}s. I'll take you to see all options.`;
-        suggestions = ['Check Availability', 'Reserve Now', 'Back'];
-        setChatContext({ ...chatContext, searchedItem: detectedItem, lastReserved: 'equipment' });
-      } else if (input.includes('room') || input.includes('213') || input.includes('214') || input.includes('215')) {
-        botResponse = `I'll show you the available rooms. Which one interests you?`;
-        suggestions = ['Room 213', 'Room 214', 'Room 215', 'View All'];
-      } else {
-        botResponse = 'What would you like to check availability for? Equipment or rooms?';
-        suggestions = ['Equipment', 'Rooms'];
-      }
-    } else if (input.includes('reserve') || input.includes('book')) {
-      if (input.includes('equipment') || input.includes('speaker') || input.includes('microphone') || input.includes('cable') || input.includes('flag') || input.includes('tv')) {
-        botResponse = `I'd be happy to help you reserve equipment. Based on your request, here are some good options. Which one interests you?`;
-        suggestions = ['New Reservation', 'View My Reservations', 'Cancel'];
-        setChatContext({ ...chatContext, lastReserved: 'equipment', searchedItem: detectedItem });
-      } else if (input.includes('room') || input.includes('213') || input.includes('214') || input.includes('215')) {
-        botResponse = `Great! I can help you book a room. Which room would you prefer: Room 213, 214, or 215?`;
-        suggestions = ['Room 213', 'Room 214', 'Room 215', 'Back'];
-        setChatContext({ ...chatContext, lastReserved: 'room', preferredRoom: null });
-      } else {
-        botResponse = 'Would you like to reserve equipment or a room? I can help with either!';
-        suggestions = ['Equipment', 'Rooms', 'View All'];
-      }
-    } else if (input.includes('view') || input.includes('my') || input.includes('reservation')) {
-      botResponse = 'You can view all your reservations in the "MY RESERVATION" tab. Would you like me to show you something specific?';
-      suggestions = ['Equipment Reservations', 'Room Reservations', 'Calendar View'];
-    } else if (input.includes('thanks') || input.includes('thank') || input.includes('ok')) {
-      botResponse = 'You\'re welcome! Feel free to ask me anything else. 😊';
-      suggestions = ['Create New Reservation', 'Check Availability', 'Help'];
-    } else if (input.includes('help') || input.includes('how')) {
-      botResponse = 'I can help you with:\n• Check available equipment or rooms\n• Reserve equipment or rooms\n• View your reservations\n• Get information about our services\n\nWhat would you like?';
-      suggestions = ['Check Availability', 'Make Reservation', 'My Reservations'];
+    if (isReservationAttempt) {
+      // Process reservation from chat
+      const result = await processReservationFromChat(currentInput);
+      
+      const botMessage = {
+        id: updatedMessages.length + 1,
+        text: result.response,
+        sender: 'bot',
+        timestamp: new Date(),
+        suggestions: result.suggestions
+      };
+      setChatMessages([...updatedMessages, botMessage]);
     } else {
-      botResponse = chatContext.lastReserved ? 
-        `I can help with that! Since you were interested in ${chatContext.lastReserved === 'equipment' ? 'equipment' : 'rooms'}, would you like to continue with that?` :
-        'I can help you check availa­bility or make reservations for equipment or rooms. What would you like to do?';
-      suggestions = ['Continue Previous', 'New Reservation', 'Help'];
-    }
+      // Original NLP logic for non-reservation queries
+      // Detect equipment items mentioned
+      const equipmentItems = ['speaker', 'microphone', 'mic', 'hdmi', 'cable', 'extension', 'flag', 'tv'];
+      let detectedItem = null;
+      for (let item of equipmentItems) {
+        if (input.includes(item)) {
+          detectedItem = item;
+          break;
+        }
+      }
+      
+      if (input.includes('available') || input.includes('may available')) {
+        if (detectedItem) {
+          botResponse = `Let me show you the available ${detectedItem}s. I'll take you to see all options.`;
+          suggestions = ['Check Availability', 'Reserve Now', 'Back'];
+          setChatContext({ ...chatContext, searchedItem: detectedItem, lastReserved: 'equipment' });
+        } else if (input.includes('room') || input.includes('213') || input.includes('214') || input.includes('215')) {
+          botResponse = `I'll show you the available rooms. Which one interests you?`;
+          suggestions = ['Room 213', 'Room 214', 'Room 215', 'View All'];
+        } else {
+          botResponse = 'What would you like to check availability for? Equipment or rooms?';
+          suggestions = ['Equipment', 'Rooms'];
+        }
+      } else if (input.includes('view') || input.includes('my') || input.includes('reservation')) {
+        botResponse = 'You can view all your reservations in the "MY RESERVATION" tab. Would you like me to show you something specific?';
+        suggestions = ['Equipment Reservations', 'Room Reservations', 'Calendar View'];
+      } else if (input.includes('thanks') || input.includes('thank') || input.includes('ok')) {
+        botResponse = 'You\'re welcome! Feel free to ask me anything else. 😊';
+        suggestions = ['Create New Reservation', 'Check Availability', 'Help'];
+      } else if (input.includes('help') || input.includes('how')) {
+        botResponse = 'I can help you with:\n• Reserve equipment or rooms by telling me what you need\n• Check available items\n• View your reservations\n• Get information about our services\n\nWhat would you like?';
+        suggestions = ['Reserve Equipment', 'Reserve Room', 'My Reservations'];
+      } else {
+        botResponse = 'I can help you reserve equipment or rooms! Just tell me what you need, when, and for what purpose. 😊';
+        suggestions = ['Reserve Equipment', 'Reserve Room', 'Help'];
+      }
 
-    const botMessage = {
-      id: updatedMessages.length + 1,
-      text: botResponse,
-      sender: 'bot',
-      timestamp: new Date(),
-      suggestions: suggestions
-    };
-    
-    setChatMessages([...updatedMessages, botMessage]);
-    setChatInput('');
+      const botMessage = {
+        id: updatedMessages.length + 1,
+        text: botResponse,
+        sender: 'bot',
+        timestamp: new Date(),
+        suggestions: suggestions
+      };
+      
+      setChatMessages([...updatedMessages, botMessage]);
+    }
   };
 
-  const handleQuickAction = (action) => {
+  const handleQuickAction = async (action) => {
     setChatInput(action);
     
     // Simulate sending the quick action
@@ -1165,7 +1993,24 @@ function UserDashboard({ onLogout }) {
     const updatedMessages = [...chatMessages, userMessage];
     setChatMessages(updatedMessages);
     
-    // Generate response based on quick action
+    // If we're in the middle of collecting reservation info, treat quick action
+    // as a normal chat message and continue the reservation flow.
+    if (reservationContext.isActive) {
+      const result = await processReservationFromChat(action);
+
+      const botMessage = {
+        id: updatedMessages.length + 1,
+        text: result.response,
+        sender: 'bot',
+        timestamp: new Date(),
+        suggestions: result.suggestions || []
+      };
+
+      setChatMessages([...updatedMessages, botMessage]);
+      return;
+    }
+
+    // Otherwise, generate response based on quick action shortcuts
     let botResponse = '';
     let suggestions = [];
     
@@ -1756,37 +2601,65 @@ function UserDashboard({ onLogout }) {
       {/* Navbar */}
       <nav className="userdash-navbar">
         <div className="userdash-nav-content">
-          <button 
-            className="userdash-hamburger" 
+          <div 
+            className="userdash-hamburger"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            style={{display: 'none', flexDirection: 'column', cursor: 'pointer', background: 'none', border: 'none', gap: '5px'}}
           >
-            <span style={{display: 'block', width: '26px', height: '3px', backgroundColor: '#333', borderRadius: '2px'}}></span>
-            <span style={{display: 'block', width: '26px', height: '3px', backgroundColor: '#333', borderRadius: '2px'}}></span>
-            <span style={{display: 'block', width: '26px', height: '3px', backgroundColor: '#333', borderRadius: '2px'}}></span>
-          </button>
-          <div className={`userdash-nav-tabs ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+            {mobileMenuOpen ? '✕' : '☰'}
+          </div>
+          {/* Mobile Menu Backdrop and Menu Container */}
+          {mobileMenuOpen && (
+            <div 
+              className="userdash-mobile-backdrop"
+              onClick={() => setMobileMenuOpen(false)}
+            ></div>
+          )}
+          <div className={`userdash-nav-tabs ${mobileMenuOpen ? "show" : ""}`}>
+            <div className="userdash-nav-menu-header">
+              <button 
+                className="userdash-nav-close"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
             <button 
               className={`userdash-nav-tab ${activeTab === 'dashboard' ? 'active' : ''}`}
-              onClick={() => {setActiveTab('dashboard'); setMobileMenuOpen(false);}}
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveTab('dashboard');
+                setMobileMenuOpen(false);
+              }}
             >
               DASHBOARD
             </button>
             <button 
               className={`userdash-nav-tab ${activeTab === 'my-reservation' ? 'active' : ''}`}
-              onClick={() => {setActiveTab('my-reservation'); setMobileMenuOpen(false);}}
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveTab('my-reservation');
+                setMobileMenuOpen(false);
+              }}
             >
               MY RESERVATION
             </button>
             <button 
               className={`userdash-nav-tab ${activeTab === 'equipments' ? 'active' : ''}`}
-              onClick={() => {setActiveTab('equipments'); setMobileMenuOpen(false);}}
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveTab('equipments');
+                setMobileMenuOpen(false);
+              }}
             >
               EQUIPMENTS
             </button>
             <button 
               className={`userdash-nav-tab ${activeTab === 'rooms' ? 'active' : ''}`}
-              onClick={() => {setActiveTab('rooms'); setMobileMenuOpen(false);}}
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveTab('rooms');
+                setMobileMenuOpen(false);
+              }}
             >
               ROOMS
             </button>
@@ -2460,19 +3333,6 @@ function UserDashboard({ onLogout }) {
                       {msg.text}
                     </div>
                   </div>
-                  {msg.suggestions && msg.suggestions.length > 0 && (
-                    <div className="chat-suggestions">
-                      {msg.suggestions.map((suggestion, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => handleQuickAction(suggestion)}
-                          className="suggestion-btn"
-                        >
-                          {suggestion}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
               ))}
             </div>

@@ -557,171 +557,34 @@
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
-  .userdash-nav-content {
-    padding: 0 24px;
-  }
-
-  .userdash-nav-tabs {
-    gap: 30px;
-  }
-
-  .userdash-main {
-    padding: 40px 24px;
-  }
-
-  .dashboard-header h1 {
-    font-size: 1.6rem;
-  }
-
-  .dashboard-cards {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 30px;
-  }
-
-  .dashboard-card h3 {
-    font-size: 1.1rem;
-  }
-
-  .dashboard-btn {
-    padding: 10px 24px;
-    font-size: 0.8rem;
-  }
-
-  .upcoming-reservations-section {
-    padding: 30px;
-  }
-
-  .upcoming-title {
-    font-size: 1.3rem;
-  }
-
-  .upcoming-item {
-    gap: 16px;
-  }
-
-  .upcoming-item-name {
-    min-width: 120px;
-  }
-
-  .upcoming-item-date {
-    margin-left: 16px;
-    min-width: 150px;
-  }
-
-  .upcoming-item-purpose {
-    margin-left: 16px;
-  }
-}
-
 @media (max-width: 768px) {
-  /* Show Hamburger Menu on Mobile */
-  .userdash-hamburger {
-    display: flex;
-  }
-
-  /* Mobile Nav */
-  .userdash-nav-content {
-    padding: 0 16px;
-    min-height: 55px;
-    position: relative;
-  }
-
   .userdash-nav-tabs {
-    display: none;
-    position: absolute;
-    top: 55px;
-    left: 0;
-    right: 0;
-    background: #d3d3d3;
-    flex-direction: column;
-    gap: 0;
-    padding: 8px 0;
-    margin: 0;
-    border-bottom: 1px solid #bbb;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    z-index: 99;
-  }
-
-  .userdash-nav-tabs.mobile-open {
-    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
   }
 
   .userdash-nav-tab {
-    font-size: 0.8rem;
-    padding: 12px 16px;
-    border: none;
-    border-bottom: 1px solid #c5c5c5;
-    text-align: left;
-    width: 100%;
-  }
-
-  .userdash-nav-tab:last-child {
-    border-bottom: none;
-  }
-
-  .userdash-nav-tab.active {
-    background-color: #c5c5c5;
-    border-left: 4px solid #d9534f;
-    padding-left: 12px;
-  }
-
-  .userdash-nav-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    order: 2;
-    margin-left: auto;
-  }
-
-  .userdash-profile-btn {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    min-height: 40px;
-  }
-
-  .userdash-notifications-btn {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    min-height: 40px;
+    font-size: 0.75rem;
+    padding: 15px 0;
   }
 
   .dashboard-header h1 {
-    font-size: 1.3rem;
-  }
-
-  .dashboard-header p {
-    font-size: 0.8rem;
-  }
-
-  .userdash-main {
-    padding: 25px 16px;
+    font-size: 1.4rem;
   }
 
   .dashboard-cards {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 25px;
   }
 
-  .dashboard-card {
-    padding: 30px 25px;
+  .userdash-main {
+    padding: 30px 20px;
   }
 
-  .dashboard-card h3 {
-    font-size: 1rem;
-    margin-bottom: 20px;
-  }
-
-  .dashboard-btn {
-    padding: 9px 20px;
-    font-size: 0.75rem;
-  }
-
+  /* Upcoming Reservations Mobile */
   .upcoming-reservations-section {
-    padding: 25px;
+    padding: 24px 16px;
+    margin-top: 30px;
   }
 
   .upcoming-title {
@@ -730,258 +593,111 @@
   }
 
   .upcoming-item {
-    padding: 16px 18px;
     flex-direction: column;
-    gap: 8px;
     align-items: flex-start;
+    padding: 16px 16px;
+    gap: 12px;
   }
 
   .upcoming-item-name {
-    font-size: 0.95rem;
-    min-width: auto;
+    font-size: 1rem;
+    flex: none;
+    min-width: unset;
+    width: 100%;
+    margin-bottom: 8px;
   }
 
   .upcoming-item-date {
-    font-size: 0.8rem;
     margin-left: 0;
-    min-width: auto;
+    min-width: unset;
+    font-size: 0.85rem;
+    width: 100%;
   }
 
   .upcoming-item-purpose {
-    font-size: 0.75rem;
     margin-left: 0;
     max-width: 100%;
     white-space: normal;
+    font-size: 0.8rem;
+    width: 100%;
     overflow: visible;
     text-overflow: clip;
   }
 
   .upcoming-status {
-    width: 100%;
-  }
-
-  .calendar-grid {
-    gap: 8px;
-  }
-
-  .calendar-day-header {
-    font-size: 0.7rem;
-    padding: 8px 0;
-  }
-
-  .calendar-day {
-    padding: 6px;
-  }
-
-  .calendar-day-number {
-    font-size: 0.8rem;
-  }
-
-  .calendar-event {
-    height: 20px;
-    font-size: 0.6rem;
-    padding: 2px 4px;
-  }
-
-  .userdash-profile-dropdown {
-    min-width: 140px;
-    right: -6px;
-  }
-
-  .userdash-dropdown-item {
-    padding: 10px 12px;
+    margin-left: 0;
+    align-self: flex-start;
     font-size: 0.75rem;
+    padding: 6px 12px;
   }
 
-  .userdash-notifications-dropdown {
-    min-width: 280px;
-    max-width: 340px;
+  /* Chatbot Mobile Responsive */
+  .chatbot-widget {
+    bottom: 16px;
+    right: 16px;
   }
 
-  .userdash-notification-item {
-    padding: 12px 14px;
+  .chatbot-toggle-btn {
+    width: 56px;
+    height: 56px;
+    font-size: 26px;
   }
 
-  .notification-title {
-    font-size: 0.8rem;
+  .chatbot-window {
+    width: 90vw;
+    max-width: 350px;
+    height: 450px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
   }
 
-  .notification-time {
-    font-size: 0.65rem;
-  }
-
-  .notification-message {
-    font-size: 0.75rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .userdash-hamburger {
-    display: flex;
-    padding: 4px;
-    gap: 4px;
-  }
-
-  .userdash-hamburger span {
-    width: 22px;
-    height: 2.5px;
-  }
-
-  .userdash-nav-content {
-    padding: 0 12px;
-    min-height: 50px;
-  }
-
-  .userdash-nav-tabs {
-    top: 50px;
-    padding: 4px 0;
-  }
-
-  .userdash-nav-tab {
-    font-size: 0.75rem;
-    padding: 8px 12px;
-    border-bottom: 1px solid #c5c5c5;
-  }
-
-  .userdash-nav-right {
-    gap: 8px;
-  }
-
-  .userdash-profile-btn,
-  .userdash-notifications-btn {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
-  }
-
-  .dashboard-header h1 {
-    font-size: 1.1rem;
-  }
-
-  .dashboard-header p {
-    font-size: 0.75rem;
-  }
-
-  .userdash-main {
-    padding: 16px 12px;
-  }
-
-  .dashboard-cards {
-    gap: 16px;
-  }
-
-  .dashboard-card {
-    padding: 25px 20px;
-  }
-
-  .dashboard-card h3 {
-    font-size: 0.9rem;
-    margin-bottom: 16px;
-  }
-
-  .dashboard-btn {
-    padding: 8px 18px;
-    font-size: 0.7rem;
-  }
-
-  .upcoming-reservations-section {
-    padding: 18px 12px;
-    margin-top: 24px;
-  }
-
-  .upcoming-title {
+  .chatbot-header h3 {
     font-size: 1rem;
-    margin-bottom: 16px;
-    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
   }
 
-  .upcoming-item {
-    padding: 12px 14px;
-    flex-direction: column;
+  .chatbot-messages {
+    padding: 14px;
+    gap: 12px;
   }
 
-  .upcoming-item-name {
-    font-size: 0.85rem;
+  .chat-bubble {
+    max-width: 90%;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
   }
 
-  .upcoming-item-date {
-    font-size: 0.75rem;
+  .chat-suggestions {
+    gap: 8px;
+    padding: 0 8px;
   }
 
-  .upcoming-item-purpose {
-    font-size: 0.7rem;
-  }
-
-  .calendar-grid {
-    gap: 6px;
-  }
-
-  .calendar-day {
-    padding: 4px;
-  }
-
-  .calendar-day-number {
-    font-size: 0.7rem;
-  }
-
-  .calendar-event {
-    height: 16px;
-    font-size: 0.5rem;
-    padding: 1px 3px;
-  }
-
-  .userdash-profile-dropdown {
-    min-width: 120px;
-    right: -4px;
-  }
-
-  .userdash-notifications-dropdown {
-    min-width: 240px;
-    max-width: 300px;
-  }
-
-  .userdash-notifications-header {
-    padding: 12px;
+  .suggestion-btn {
     font-size: 0.8rem;
+    padding: 6px 12px;
   }
 
-  .userdash-notifications-list {
-    max-height: 300px;
+  .chatbot-input-area {
+    padding: 12px;
+    gap: 8px;
   }
 
-  .userdash-notification-item {
-    padding: 10px 12px;
-  }
-
-  .notification-title {
-    font-size: 0.75rem;
-  }
-
-  .notification-time {
-    font-size: 0.6rem;
-  }
-
-  .notification-message {
-    font-size: 0.7rem;
-    line-height: 1.3;
-  }
-
-  .logout-modal {
-    max-width: calc(100% - 32px);
-    padding: 30px 24px;
-  }
-
-  .logout-modal-title {
-    font-size: 1.1rem;
-  }
-
-  .logout-modal-text {
+  .chatbot-input {
     font-size: 0.85rem;
+    padding: 8px 12px;
   }
 
-  .logout-modal-buttons {
-    gap: 10px;
+  .chatbot-send-btn {
+    padding: 8px 14px;
+    font-size: 0.85rem;
   }
 }
 
@@ -2305,9 +2021,9 @@
 }
 
 .chatbot-window {
-  position: absolute;
-  bottom: 80px;
-  right: 0;
+  position: fixed;
+  bottom: 100px;
+  right: 24px;
   width: 380px;
   height: 500px;
   background: white;
@@ -2321,11 +2037,11 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(20px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -2337,12 +2053,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
 }
 
 .chatbot-header h3 {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 }
 
 .chatbot-close-btn {
@@ -2390,9 +2112,10 @@
   padding: 10px 14px;
   border-radius: 12px;
   word-wrap: break-word;
-  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  white-space: pre-line;
   font-size: 0.95rem;
-  line-height: 1.4;
+  line-height: 1.6;
 }
 
 .chat-message.bot .chat-bubble {
@@ -2407,42 +2130,7 @@
   border-bottom-right-radius: 4px;
 }
 
-.chat-suggestions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 8px 0;
-  justify-content: flex-start;
-  padding: 0 8px;
-}
-
-.chat-message.bot ~ .chat-suggestions {
-  margin-left: 0;
-}
-
-.suggestion-btn {
-  background-color: #f0f6ff;
-  color: #2563eb;
-  border: 1px solid #2563eb;
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: 'Poppins', sans-serif;
-}
-
-.suggestion-btn:hover {
-  background-color: #2563eb;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
-}
-
-.suggestion-btn:active {
-  transform: translateY(0);
-}
+/* Chat suggestions/buttons removed; user now types all information manually */
 
 .chatbot-input-area {
   display: flex;
@@ -2621,3 +2309,638 @@
 .userdash-notification-item:hover {
   background: #f9f9f9 !important;
 }
+
+/* ============================= */
+/* MOBILE RESPONSIVE DASHBOARD */
+/* ============================= */
+
+/* HAMBURGER BUTTON */
+
+.userdash-hamburger {
+  display: none;
+  font-size: 26px;
+  cursor: pointer;
+  color: #333;
+  background: none;
+  border: none;
+  padding: 10px;
+  order: -1;
+}
+
+/* TABLE SCROLL */
+
+.reservations-table-container {
+  overflow-x: auto;
+}
+
+/* CALENDAR SCROLL */
+
+.calendar-grid {
+  min-width: 700px;
+}
+
+/* MOBILE */
+
+@media (max-width: 900px) {
+
+  .userdash-nav-content {
+    padding: 0 12px;
+    min-height: 65px;
+  }
+
+  .userdash-nav-tabs {
+      position: absolute;
+    top: 65px;
+    left: 0;
+    width: 100%;
+    background: #d3d3d3;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    display: none;
+    padding-bottom: 10px;
+  }
+
+  .userdash-nav-tabs.show {
+    display: flex;
+  }
+
+  .userdash-nav-tab {
+    width: 100%;
+    text-align: center;
+    padding: 16px;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .userdash-hamburger {
+    display: block;
+  }
+
+}
+
+/* SMALL MOBILE */
+
+@media (max-width: 768px) {
+
+  .userdash-main {
+    padding: 20px;
+  }
+
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .dashboard-card {
+    padding: 30px 20px;
+  }
+
+  .equipment-grid-new {
+    grid-template-columns: 1fr;
+  }
+
+  .rooms-selection-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .room-pill {
+    padding: 10px 18px;
+    font-size: 0.85rem;
+  }
+
+  .calendar-day {
+    min-height: 80px;
+  }
+
+  .chatbot-window {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    height: 70vh;
+  }
+
+}
+
+/* EXTRA SMALL PHONE */
+
+@media (max-width: 480px) {
+
+  .dashboard-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .dashboard-header p {
+    font-size: 0.8rem;
+  }
+
+  .equipment-filter-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .equipment-filters {
+    width: 100%;
+  }
+
+  .equipment-filter-btn {
+    font-size: 0.8rem;
+    padding: 8px 16px;
+  }
+
+  /* Extra small phone - Upcoming Reservations */
+  .upcoming-reservations-section {
+    padding: 16px 12px;
+    margin-top: 24px;
+    border-radius: 16px;
+  }
+
+  .upcoming-title {
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    font-weight: 700;
+  }
+
+  .upcoming-item {
+    padding: 12px 12px;
+    border-radius: 10px;
+    gap: 10px;
+  }
+
+  .upcoming-item-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .upcoming-item-date {
+    font-size: 0.8rem;
+  }
+
+  .upcoming-item-date::before {
+    font-size: 0.9rem;
+  }
+
+  .upcoming-item-purpose {
+    font-size: 0.75rem;
+    line-height: 1.3;
+  }
+
+  .upcoming-status {
+    font-size: 0.7rem;
+    padding: 5px 10px;
+  }
+
+  .upcoming-status::before {
+    font-size: 0.8rem;
+  }
+
+  /* Extra small phone - Chatbot */
+  .chatbot-widget {
+    bottom: 12px;
+    right: 12px;
+  }
+
+  .chatbot-toggle-btn {
+    width: 52px;
+    height: 52px;
+    font-size: 24px;
+    box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
+  }
+
+  .chatbot-window {
+    width: 95vw;
+    max-width: 300px;
+    height: 400px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 10px;
+  }
+
+  .chatbot-header {
+    padding: 12px;
+  }
+
+  .chatbot-header h3 {
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+
+  .chatbot-close-btn {
+    font-size: 20px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .chatbot-messages {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .chat-message {
+    margin-bottom: 10px;
+  }
+
+  .chat-bubble {
+    max-width: 90%;
+    padding: 9px 12px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-line;
+  }
+
+  /* Chat suggestions/buttons removed for mobile as well */
+
+  .chatbot-input-area {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .chatbot-input {
+    font-size: 0.8rem;
+    padding: 7px 10px;
+  }
+
+  .chatbot-send-btn {
+    padding: 7px 12px;
+    font-size: 0.8rem;
+  }
+
+}
+
+/* ================= MOBILE RESPONSIVE ================= */
+
+/* TABLE SCROLL */
+.reservations-table-container {
+  overflow-x: auto;
+}
+
+/* CALENDAR SCROLL */
+.calendar-grid {
+  min-width: 700px;
+}
+
+/* TABLET */
+@media (max-width: 1024px) {
+
+  .dashboard-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .equipment-grid-new {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+
+  .userdash-main {
+    padding: 20px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .dashboard-header p {
+    font-size: 0.9rem;
+  }
+
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .dashboard-card {
+    padding: 25px;
+  }
+
+  .equipment-grid-new {
+    grid-template-columns: 1fr;
+  }
+
+  .rooms-selection-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .room-pill {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+
+  .calendar-day {
+    min-height: 80px;
+  }
+
+  .chatbot-window {
+    width: 90vw;
+    height: 70vh;
+    right: -10px;
+  }
+
+}
+
+/* EXTRA SMALL PHONE */
+@media (max-width: 480px) {
+
+  .dashboard-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .dashboard-header p {
+    font-size: 0.8rem;
+  }
+
+  .equipment-filter-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .equipment-filters {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .equipment-filter-btn {
+    font-size: 0.8rem;
+    padding: 8px 14px;
+  }
+
+}
+
+/* =====================================
+FINAL MOBILE NAVBAR FIX
+===================================== */
+
+.userdash-hamburger{
+display:none;
+font-size:28px;
+cursor:pointer;
+}
+
+.userdash-nav-menu-header {
+  display: none;
+}
+
+.userdash-nav-close {
+  display: none;
+}
+
+/* TABLET */
+@media (max-width:1024px){
+
+.dashboard-cards{
+grid-template-columns:1fr;
+}
+
+.equipment-grid-new{
+grid-template-columns:repeat(2,1fr);
+}
+
+}
+
+/* MOBILE NAVBAR */
+@media (max-width:768px){
+
+.userdash-hamburger{
+display:block;
+}
+
+.userdash-nav-content{
+position:relative;
+}
+
+/* MOBILE MENU */
+
+.userdash-nav-tabs{
+position:fixed;
+top:0;
+left:-100%;
+width:50%;
+max-width:220px;
+height:100vh;
+background:white;
+flex-direction:column;
+align-items:flex-start;
+gap:0;
+padding-top:0;
+box-shadow:2px 0 15px rgba(0,0,0,0.2);
+transition:0.3s;
+z-index:999;
+}
+
+/* Mobile Menu Header with Close Button */
+.userdash-nav-menu-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0 12px;
+  border-bottom: none;
+  background: transparent;
+  min-height: 65px;
+  width: 100%;
+}
+
+.userdash-nav-close {
+  display: flex;
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: #333;
+  padding: 0;
+  transition: all 0.2s ease;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.userdash-nav-close:hover {
+  background-color: #f0f0f0;
+  color: #d9534f;
+  transform: scale(1.1);
+}
+
+/* OPEN MENU */
+
+.userdash-nav-tabs.show{
+left:0;
+}
+
+/* NAV BUTTONS */
+
+.userdash-nav-tab{
+width:100%;
+text-align:left;
+padding:18px 25px;
+border-bottom:none;
+font-size:0.9rem;
+}
+
+/* DASHBOARD FIX */
+
+.userdash-main{
+padding:20px;
+}
+
+.dashboard-header h1{
+font-size:22px;
+}
+
+.dashboard-header p{
+font-size:14px;
+}
+
+/* CARDS */
+
+.dashboard-cards{
+grid-template-columns:1fr;
+gap:20px;
+}
+
+.dashboard-card{
+width:100%;
+padding:25px;
+}
+
+/* EQUIPMENT */
+
+.equipment-grid-new{
+grid-template-columns:1fr;
+}
+
+/* ROOM CARD */
+
+.room-card-new{
+width:100%;
+}
+
+/* TABLE SCROLL */
+
+.reservations-table-container{
+overflow-x:auto;
+}
+
+/* CALENDAR */
+
+.calendar-view {
+  padding: 16px;
+}
+
+.calendar-header {
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.calendar-header button {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+.calendar-month-year {
+  font-size: 1.1rem;
+  min-width: auto;
+  width: 100%;
+  text-align: center;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: #dbeafe;
+  padding: 1px;
+  border-radius: 6px;
+  min-width: unset;
+}
+
+.calendar-day {
+  min-height: 70px;
+  padding: 6px 4px;
+  font-size: 0.75rem;
+}
+
+.calendar-day-header {
+  padding: 8px 4px;
+  font-size: 0.75rem;
+}
+
+.calendar-day-number {
+  font-size: 0.8rem;
+  margin-bottom: 2px;
+}
+
+.calendar-day-events {
+  gap: 2px;
+}
+
+.calendar-event {
+  padding: 4px 6px;
+  font-size: 0.65rem;
+  border-radius: 3px;
+}
+
+/* CHATBOT */
+
+.chatbot-window{
+width:90%;
+right:5%;
+}
+
+}
+
+
+/* SMALL PHONES */
+
+@media (max-width:480px){
+
+.userdash-main{
+padding:15px;
+}
+
+.userdash-nav-tabs{
+width:60%;
+max-width:240px;
+}
+
+.dashboard-header h1{
+font-size:20px;
+}
+
+.dashboard-btn{
+width:100%;
+}
+
+.equipment-filter-container{
+flex-direction:column;
+gap:10px;
+}
+
+.equipment-actions{
+flex-direction:column;
+width:100%;
+}
+
+.equipment-actions button{
+width:100%;
+}
+
+}
+
